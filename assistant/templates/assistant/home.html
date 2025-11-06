@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shopping Assistant</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4cb5ae;
+            --text-color: #333;
+            --light-bg: #f5f7fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .avatar-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Enhanced Avatar Styles */
+        .avatar-container {
+            width: 220px;
+            height: 280px;
+            position: relative;
+            margin-bottom: 20px;
+            background: var(--light-bg);
+            border-radius: 20px;
+            border: 3px solid var(--accent-color);
+            overflow: visible;
+        }
+
+        .avatar-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Head */
+        .head {
+            width: 120px;
+            height: 140px;
+            background: #ffdbac;
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Hair */
+        .hair {
+            width: 130px;
+            height: 60px;
+            background: #2c1810;
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            top: -20px;
+            left: -5px;
+        }
+
+        /* Face */
+        .face {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Eyes Container */
+        .eyes-container {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+        }
+
+        .eye {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #333;
+            animation: blink 4s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { height: 24px; }
+            92%, 98% { height: 2px; }
+        }
+
+        .pupil {
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        /* Eyebrows */
+        .eyebrow {
+            width: 28px;
+            height: 6px;
+            background: #2c1810;
+            border-radius: 3px;
+            position: absolute;
+            top: 40px;
+        }
+
+        .left-eyebrow {
+            left: 22px;
+            transform: rotate(-5deg);
+        }
+
+        .right-eyebrow {
+            right: 22px;
+            transform: rotate(5deg);
+        }
+
+        /* Mouth */
+        .mouth {
+            width: 40px;
+            height: 20px;
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .mouth-inner {
+            width: 100%;
+            height: 100%;
+            background: #e75480;
+            border-radius: 0 0 20px 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Blush */
+        .blush {
+            width: 20px;
+            height: 10px;
+            background: #ffb6c1;
+            border-radius: 50%;
+            position: absolute;
+            top: 70px;
+            opacity: 0.6;
+        }
+
+        .left-blush {
+            left: 15px;
+        }
+
+        .right-blush {
+            right: 15px;
+        }
+
+        /* Body */
+        .body {
+            position: absolute;
+            top: 150px;
+            left: 40px;
+            width: 140px;
+            height: 100px;
+        }
+
+        .shirt {
+            width: 100%;
+            height: 80px;
+            background: #4a6fa5;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+
+        .collar {
+            width: 60px;
+            height: 20px;
+            background: #166088;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Expression States */
+        .avatar-face.talking .mouth-inner {
+            animation: talk 0.5s ease-in-out infinite;
+        }
+
+        @keyframes talk {
+            0%, 100% { height: 20px; border-radius: 0 0 20px 20px; }
+            50% { height: 10px; border-radius: 10px; }
+        }
+
+        .avatar-face.thinking .eyes-container {
+            animation: think 2s ease-in-out infinite;
+        }
+
+        @keyframes think {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .avatar-face.happy .mouth-inner {
+            height: 25px;
+            border-radius: 50%;
+            background: #ff6b6b;
+        }
+
+        .avatar-face.listening .pupil {
+            animation: listen 1s ease-in-out infinite;
+        }
+
+        @keyframes listen {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Avatar Expressions Controls */
+        .avatar-expressions {
+            display: flex;
+            gap: 5px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .expression-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 15px;
+            background: #e9ecef;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .expression-btn:hover {
+            background: #dee2e6;
+            transform: scale(1.05);
+        }
+
+        .expression-btn.active {
+            background: #4cb5ae;
+            color: white;
+        }
+
+        /* Enhanced Sign Language */
+        .sign-language-animation {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hand {
+            font-size: 24px;
+            animation: sign 2s ease-in-out infinite;
+        }
+
+        .left-hand {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes sign {
+            0%, 100% { transform: rotate(0deg) translateY(0px); }
+            25% { transform: rotate(-10deg) translateY(-5px); }
+            75% { transform: rotate(10deg) translateY(5px); }
+        }
+
+        /* Avatar Status */
+        .avatar-status {
+            font-style: italic;
+            color: #666;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 10px 0;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4cb5ae;
+        }
+        
+        .chat-section {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .assistant-message {
+            background: #e9ecef;
+            color: var(--text-color);
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-section input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .input-section button {
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .input-section button:hover {
+            background: #3a9d96;
+        }
+        
+        .accessibility-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .accessibility-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .blind-mode {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .deaf-mode {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .active-mode {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px currentColor;
+        }
+        
+        .sign-language-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .caption-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            min-height: 60px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Shopping Assistant</h1>
+            <p>Your friendly virtual shopping helper</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="avatar-section">
+                <div class="avatar-container">
+                    <div class="avatar-face">
+                        <!-- Head -->
+                        <div class="head">
+                            <!-- Hair -->
+                            <div class="hair"></div>
+                            
+                            <!-- Face -->
+                            <div class="face">
+                                <!-- Eyes -->
+                                <div class="eyes-container">
+                                    <div class="eye left-eye">
+                                        <div class="pupil"></div>
+                                    </div>
+                                    <div class="eye right-eye">
+                                        <div class="pupil"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Eyebrows -->
+                                <div class="eyebrow left-eyebrow"></div>
+                                <div class="eyebrow right-eyebrow"></div>
+                                
+                                <!-- Mouth -->
+                                <div class="mouth">
+                                    <div class="mouth-inner"></div>
+                                </div>
+                                
+                                <!-- Blush -->
+                                <div class="blush left-blush"></div>
+                                <div class="blush right-blush"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Body -->
+                        <div class="body">
+                            <div class="shirt">
+                                <div class="collar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>Lerato - Your Shopping Assistant</h2>
+                <p class="avatar-status" id="avatarStatus">Hello! Ready to help you shop!</p>
+                
+                <div class="avatar-expressions">
+                    <button class="expression-btn" data-expression="happy">😊 Happy</button>
+                    <button class="expression-btn" data-expression="thinking">🤔 Thinking</button>
+                    <button class="expression-btn" data-expression="talking">🗣️ Talking</button>
+                </div>
+                
+                <div class="accessibility-controls">
+                    <button class="accessibility-btn blind-mode" data-type="blind">
+                        👁️ Blind Mode
+                    </button>
+                    <button class="accessibility-btn deaf-mode" data-type="deaf">
+                        👂 Deaf Mode
+                    </button>
+                </div>
+                
+                <div class="sign-language-container" id="signLanguageContainer">
+                    <h3>Sign Language</h3>
+                    <div class="sign-language-animation" id="signAnimation">
+                        <div class="hand left-hand">✋</div>
+                        <div class="hand right-hand">🤚</div>
+                    </div>
+                </div>
+                
+                <div class="caption-box" id="captionBox">
+                    <!-- Captions will appear here -->
+                </div>
+            </div>
+            
+            <div class="chat-section">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant-message">
+                        Hello! I'm your AI shopping assistant. Please select your accessibility preference above so I can best assist you.
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" id="userInput" placeholder="Type your message here...">
+                    <button id="sendButton">Send</button>
+                </div>
+                
+                <div class="voice-controls" style="margin-top: 15px; display: none;" id="voiceControls">
+                    <button id="voiceButton" style="padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🎤 Start Voice Input
+                    </button>
+                    <p id="voiceStatus" style="margin-top: 5px; font-size: 14px; color: #6c757d;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const voiceControls = document.getElementById('voiceControls');
+            const voiceButton = document.getElementById('voiceButton');
+            const voiceStatus = document.getElementById('voiceStatus');
+            const signLanguageContainer = document.getElementById('signLanguageContainer');
+            const signAnimation = document.getElementById('signAnimation');
+            const captionBox = document.getElementById('captionBox');
+            
+            let currentUserType = 'unknown';
+            let recognition = null;
+
+            // Avatar Management
+            const avatarFace = document.querySelector('.avatar-face');
+            const avatarStatus = document.getElementById('avatarStatus');
+            const pupilLeft = document.querySelector('.left-eye .pupil');
+            const pupilRight = document.querySelector('.right-eye .pupil');
+            const mouth = document.querySelector('.mouth-inner');
+
+            // Expression buttons
+            document.querySelectorAll('.expression-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const expression = this.getAttribute('data-expression');
+                    setAvatarExpression(expression);
+                    
+                    // Update active state
+                    document.querySelectorAll('.expression-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Avatar expressions
+            function setAvatarExpression(expression) {
+                // Remove all expression classes
+                avatarFace.classList.remove('talking', 'thinking', 'happy', 'listening', 'searching');
+                
+                switch(expression) {
+                    case 'happy':
+                        avatarFace.classList.add('happy');
+                        avatarStatus.textContent = "😊 Happy to help!";
+                        break;
+                    case 'thinking':
+                        avatarFace.classList.add('thinking');
+                        avatarStatus.textContent = "🤔 Let me think about that...";
+                        break;
+                    case 'talking':
+                        avatarFace.classList.add('talking');
+                        avatarStatus.textContent = "🗣️ I'm here to assist you!";
+                        break;
+                }
+            }
+
+            // Eye tracking (pupils follow mouse)
+            document.addEventListener('mousemove', (e) => {
+                if (!avatarFace.classList.contains('thinking')) {
+                    const eyes = document.querySelector('.eyes-container');
+                    const eyesRect = eyes.getBoundingClientRect();
+                    const eyesCenterX = eyesRect.left + eyesRect.width / 2;
+                    const eyesCenterY = eyesRect.top + eyesRect.height / 2;
+                    
+                    const angle = Math.atan2(e.clientY - eyesCenterY, e.clientX - eyesCenterX);
+                    const distance = Math.min(5, Math.sqrt(
+                        Math.pow(e.clientX - eyesCenterX, 2) + 
+                        Math.pow(e.clientY - eyesCenterY, 2)
+                    ) / 100);
+                    
+                    const moveX = Math.cos(angle) * distance;
+                    const moveY = Math.sin(angle) * distance;
+                    
+                    pupilLeft.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+                    pupilRight.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+                }
+            });
+
+            // Avatar responses based on user input
+            function updateAvatarForResponse(userInput, response) {
+                const input = userInput.toLowerCase();
+                
+                // Set thinking expression while processing
+                setAvatarExpression('thinking');
+                
+                // Simulate processing time
+                setTimeout(() => {
+                    if (input.includes('hello') || input.includes('hi')) {
+                        setAvatarExpression('happy');
+                        avatarStatus.textContent = "😊 Hello! Nice to meet you!";
+                    } 
+                    else if (input.includes('thank')) {
+                        setAvatarExpression('happy');
+                        avatarStatus.textContent = "😊 You're welcome! Happy to help!";
+                    }
+                    else if (input.includes('price') || input.includes('cost')) {
+                        setAvatarExpression('thinking');
+                        avatarStatus.textContent = "💰 Checking prices for you...";
+                    }
+                    else if (input.includes('delivery')) {
+                        setAvatarExpression('talking');
+                        avatarStatus.textContent = "🚚 Sharing delivery options...";
+                    }
+                    else if (input.includes('help')) {
+                        setAvatarExpression('happy');
+                        avatarStatus.textContent = "❓ Here's how I can help you!";
+                    }
+                    else {
+                        setAvatarExpression('talking');
+                        avatarStatus.textContent = "🗣️ Let me help you with that!";
+                    }
+                }, 500);
+            }
+            
+            // Accessibility mode selection
+            document.querySelectorAll('.accessibility-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userType = this.getAttribute('data-type');
+                    setUserType(userType);
+                    
+                    // Update UI
+                    document.querySelectorAll('.accessibility-btn').forEach(btn => {
+                        btn.classList.remove('active-mode');
+                    });
+                    this.classList.add('active-mode');
+                });
+            });
+            
+            function setUserType(userType) {
+                currentUserType = userType;
+                
+                // Send to server
+                fetch('/set-user-type/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: 'user_type=' + userType
+                });
+                
+                // Update UI based on user type
+                if (userType === 'blind') {
+                    voiceControls.style.display = 'block';
+                    signLanguageContainer.style.display = 'none';
+                    captionBox.style.display = 'none';
+                    
+                    // Initial voice message
+                    speakText("Blind mode activated. I will guide you through voice. You can use voice commands to interact with me.");
+                    
+                    addMessage("Blind mode activated. Voice guidance enabled.", 'assistant');
+                } else if (userType === 'deaf') {
+                    voiceControls.style.display = 'none';
+                    signLanguageContainer.style.display = 'block';
+                    captionBox.style.display = 'block';
+                    
+                    addMessage("Deaf mode activated. Sign language and captions enabled.", 'assistant');
+                    showCaption("Deaf mode activated. I will use sign language and text captions.");
+                }
+            }
+            
+            // Enhanced sendMessage function with avatar updates
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, 'user');
+                    userInput.value = '';
+                    
+                    // Update avatar for user input
+                    updateAvatarForResponse(message, '');
+                    
+                    try {
+                        const response = await fetch('/chat/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                                message: message
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.response) {
+                            addMessage(data.response, 'assistant');
+                            
+                            // Update avatar based on response content
+                            if (data.response.includes('🥛') || data.response.includes('🍞')) {
+                                setAvatarExpression('happy');
+                                avatarStatus.textContent = "🛒 Found products for you!";
+                            } else if (data.response.includes('💰')) {
+                                setAvatarExpression('thinking');
+                                avatarStatus.textContent = "💡 Comparing prices...";
+                            } else if (data.response.includes('🚚')) {
+                                setAvatarExpression('talking');
+                                avatarStatus.textContent = "📦 Delivery information ready!";
+                            }
+                            
+                            // For deaf users, show captions
+                            if (currentUserType === 'deaf') {
+                                showCaption(data.response);
+                            }
+                            
+                            // For blind users, use text-to-speech
+                            if (currentUserType === 'blind') {
+                                speakText(data.response);
+                            }
+                        } else {
+                            addMessage("Sorry, I didn't understand that. Can you try again?", 'assistant');
+                            setAvatarExpression('thinking');
+                            avatarStatus.textContent = "🤔 Could you rephrase that?";
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error:', error);
+                        addMessage("Sorry, I'm having trouble connecting right now. Please try again.", 'assistant');
+                        setAvatarExpression('thinking');
+                        avatarStatus.textContent = "⚠️ Connection issue detected";
+                    }
+                }
+            }
+            
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Voice recognition setup
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onstart = function() {
+                    voiceStatus.textContent = "Listening...";
+                    voiceButton.style.background = '#28a745';
+                    setAvatarExpression('listening');
+                    avatarStatus.textContent = "👂 Listening to your voice...";
+                };
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+                    voiceStatus.textContent = "Voice input received";
+                    sendMessage();
+                };
+                
+                recognition.onerror = function(event) {
+                    voiceStatus.textContent = "Error: " + event.error;
+                    voiceButton.style.background = '#dc3545';
+                    setAvatarExpression('thinking');
+                    avatarStatus.textContent = "⚠️ Voice input error";
+                };
+                
+                recognition.onend = function() {
+                    voiceButton.style.background = '#dc3545';
+                    setTimeout(() => {
+                        voiceStatus.textContent = "Click to start voice input";
+                    setAvatarExpression('happy');
+                        avatarStatus.textContent = "😊 Ready to help!";
+                    }, 2000);
+                };
+                
+                voiceButton.addEventListener('click', function() {
+                    if (recognition) {
+                        recognition.start();
+                    }
+                });
+            } else {
+                voiceButton.disabled = true;
+                voiceStatus.textContent = "Speech recognition not supported in your browser";
+            }
+            
+            // Text-to-speech function
+            function speakText(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+            
+            // Show caption for deaf users
+            function showCaption(text) {
+                captionBox.textContent = text;
+                
+                // Enhanced sign language animation
+                const hands = document.querySelectorAll('.hand');
+                hands.forEach(hand => {
+                    hand.style.animation = 'sign 1s ease-in-out infinite';
+                });
+            }
+            
+            // Add message to chat
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
+                
+                // Convert line breaks to HTML
+                const formattedText = text.replace(/\n/g, '<br>');
+                messageDiv.innerHTML = formattedText;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Utility function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Initialize avatar
+            setAvatarExpression('happy');
+        });
+    </script>
+</body>
+</html>

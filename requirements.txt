@@ -1,0 +1,8 @@
+Django==4.2.7
+channels==4.0.0
+channels-redis==4.1.0
+daphne==4.0.0
+requests==2.32.5
+beautifulsoup4==4.14.2
+selenium==4.38.0
+python-dotenv==1.2.1
